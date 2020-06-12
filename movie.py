@@ -43,10 +43,10 @@ class Movie_Blog_Entry:
 
         output = ""
 
-        output += "\n#{}".format(self.title)
-        output += "\n#{}".format(self.link)
+        output += "\n# {}".format(self.title)
+        output += "\n# {}".format(self.link)
         if(len(self.speed_information) > 0):
-            output += "\n#{}".format(self.speed_information)
+            output += "\n# {}".format(self.speed_information)
 
         for link in self.link_list:
             output += "\n{}".format(link)
@@ -144,7 +144,7 @@ def search(query='') -> [Movie_Blog_Entry]:
 def print_entries(mapped_entries: {}):
 
     if(len(mapped_entries) == 0):
-        print('Keine Links gefunden!')
+        print('No links found!')
 
     for provider in mapped_entries:
         entries_list = mapped_entries[provider]
