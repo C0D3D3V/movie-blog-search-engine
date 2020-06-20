@@ -12,6 +12,13 @@ import html
 import xmltodict
 import urllib.parse
 
+try:
+    # In unix readline needs to be loaded so that
+    # arrowkeys work in input
+    import readline  # noqa: F401
+except ImportError:
+    pass
+
 from pyquery import PyQuery as pq
 from http.client import HTTPSConnection
 
@@ -157,6 +164,7 @@ def print_entries(mapped_entries: {}):
 if(len(sys.argv) > 1):
     q = ' '.join(sys.argv[1:])
     print_entries(search(q))
+    readline.add_history(q)
 
 
 while True:
