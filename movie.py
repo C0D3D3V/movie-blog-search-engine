@@ -5,22 +5,26 @@ Inspired form https://github.com/sydev/movie-blog-api
 """
 
 
+from http.client import HTTPSConnection
+from pyquery import PyQuery as pq
+import os
 import re
 import sys
 import json
 import html
+import atexit
 import xmltodict
 import urllib.parse
 
+readline_loaded = False
 try:
     # In unix readline needs to be loaded so that
     # arrowkeys work in input
     import readline  # noqa: F401
+    readline_loaded = True
 except ImportError:
     pass
 
-from pyquery import PyQuery as pq
-from http.client import HTTPSConnection
 
 stdHeader = {
     'User-Agent': ('Mozilla/5.0 (X11; Linux x86_64)' +
@@ -161,15 +165,30 @@ def print_entries(mapped_entries: {}):
             print(entry)
 
 
+histfile = os.path.join(os.path.expanduser("~"), ".movie-blog-history")
+
+try:
+    if(readline_loaded):
+        readline.read_history_file(histfile)
+        readline.set_history_length(10000)  # default infinity
+except FileNotFoundError:
+    pass
+
+if(readline_loaded):
+    atexit.register(readline.write_history_file, histfile)
+
 if(len(sys.argv) > 1):
     q = ' '.join(sys.argv[1:])
     print_entries(search(q))
-    readline.add_history(q)
+    if(readline_loaded):
+        readline.add_history(q)
 
-
-while True:
-    print('\n\n\n')
-    print('#'*60)
-    print('\n\n\n')
-    search_input = input('Search for:   ')
-    print_entries(search(search_input))
+try:
+    while True:
+        print('\n\n\n')
+        print('#'*60)
+        print('\n\n\n')
+        search_input = input('Search for:   ')
+        print_entries(search(search_input))
+except (KeyboardInterrupt, SystemExit):
+    print("\n\nSee you soon :)")
