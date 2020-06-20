@@ -25,7 +25,7 @@ stdHeader = {
 connection = HTTPSConnection('movie-blog.sx')
 
 speed_units = ['kb/s', 'kbps', 'mb/s',
-               'mbps', 'Kbp', 'VIDEO', '@', 'Video']
+               'mbps', 'Kbp', 'VIDEO', '@', 'Video', 'Größe']
 
 relevant_providers = ['Zippyshare.com', 'anonfile.com']
 
