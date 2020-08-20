@@ -4,8 +4,6 @@
 Inspired form https://github.com/sydev/movie-blog-api
 """
 
-
-from http.client import HTTPSConnection
 from pyquery import PyQuery as pq
 import os
 import re
@@ -13,6 +11,7 @@ import sys
 import json
 import html
 import atexit
+import requests
 import xmltodict
 import urllib.parse
 
@@ -21,30 +20,32 @@ try:
     # In unix readline needs to be loaded so that
     # arrowkeys work in input
     import readline  # noqa: F401
+
     readline_loaded = True
 except ImportError:
     pass
 
 
 stdHeader = {
-    'User-Agent': ('Mozilla/5.0 (X11; Linux x86_64)' +
-                   ' AppleWebKit/537.36 (KHTML, like Gecko)' +
-                   ' Chrome/78.0.3904.108 Safari/537.36'),
-    'Content-Type': 'application/x-www-form-urlencoded'
+    'User-Agent': (
+        'Mozilla/5.0 (X11; Linux x86_64)'
+        + ' AppleWebKit/537.36 (KHTML, like Gecko)'
+        + ' Chrome/78.0.3904.108 Safari/537.36'
+    ),
+    'Content-Type': 'application/x-www-form-urlencoded',
 }
 
-connection = HTTPSConnection('movie-blog.sx')
+r = requests.get('https://movie-blog.org')
+mb_domain = r.url
 
-speed_units = ['kb/s', 'kbps', 'mb/s',
-               'mbps', 'Kbp', 'VIDEO', '@', 'Video', 'Größe']
+
+speed_units = ['kb/s', 'kbps', 'mb/s', 'mbps', 'Kbp', 'VIDEO', '@', 'Video', 'Größe']
 
 relevant_providers = ['Zippyshare.com', 'anonfile.com']
 
 
 class Movie_Blog_Entry:
-
-    def __init__(self, title: str, link: str, speed_information: [],
-                 link_list: []):
+    def __init__(self, title: str, link: str, speed_information: [], link_list: []):
         self.title = title
         self.link = link
         self.speed_information = speed_information
@@ -56,7 +57,7 @@ class Movie_Blog_Entry:
 
         output += "\n# {}".format(self.title)
         output += "\n# {}".format(self.link)
-        if(len(self.speed_information) > 0):
+        if len(self.speed_information) > 0:
             output += "\n# {}".format(self.speed_information)
 
         for link in self.link_list:
@@ -93,16 +94,12 @@ def get_speed_information(html_content: str):
 
 def search(query='') -> [Movie_Blog_Entry]:
     q = urllib.parse.quote(query)
-    url = '/?s={}&feed=rss2'.format(q)
+    url = '{}/?s={}&feed=rss2'.format(mb_domain, q)
 
     try:
-        connection.request(
-            'GET',
-            url,
-            headers=stdHeader
-        )
-        response = connection.getresponse()
-        xml = response.read()
+        r = requests.get(url, headers=stdHeader)
+
+        xml = r.text
 
         page_dict = convert_xml_to_dict(xml)
 
@@ -128,19 +125,17 @@ def search(query='') -> [Movie_Blog_Entry]:
                 for link in links:
                     if link.text == provider:
                         link_href = link.attrib.get('href', '')
-                        if(link_href != ''):
-                            if (provider not in mapped_links):
+                        if link_href != '':
+                            if provider not in mapped_links:
                                 mapped_links[provider] = []
 
                             mapped_links[provider].append(link_href)
 
             for provider in mapped_links:
-                if (provider not in mapped_entries):
+                if provider not in mapped_entries:
                     mapped_entries[provider] = []
 
-                new_entry = Movie_Blog_Entry(
-                    item_title, item_link, speed_information,
-                    mapped_links[provider])
+                new_entry = Movie_Blog_Entry(item_title, item_link, speed_information, mapped_links[provider])
 
                 mapped_entries[provider].append(new_entry)
 
@@ -154,7 +149,7 @@ def search(query='') -> [Movie_Blog_Entry]:
 
 def print_entries(mapped_entries: {}):
 
-    if(len(mapped_entries) == 0):
+    if len(mapped_entries) == 0:
         print('No links found!')
 
     for provider in mapped_entries:
@@ -168,25 +163,25 @@ def print_entries(mapped_entries: {}):
 histfile = os.path.join(os.path.expanduser("~"), ".movie-blog-history")
 
 try:
-    if(readline_loaded):
+    if readline_loaded:
         readline.read_history_file(histfile)
         readline.set_history_length(10000)  # default infinity
 except FileNotFoundError:
     pass
 
-if(readline_loaded):
+if readline_loaded:
     atexit.register(readline.write_history_file, histfile)
 
-if(len(sys.argv) > 1):
+if len(sys.argv) > 1:
     q = ' '.join(sys.argv[1:])
     print_entries(search(q))
-    if(readline_loaded):
+    if readline_loaded:
         readline.add_history(q)
 
 try:
     while True:
         print('\n\n\n')
-        print('#'*60)
+        print('#' * 60)
         print('\n\n\n')
         search_input = input('Search for:   ')
         print_entries(search(search_input))
