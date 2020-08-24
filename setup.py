@@ -10,7 +10,7 @@ def readme():
 
 setup(
     name='movie-blog-search-engine',
-    version='0.1',
+    version='0.2',
     description='Search on movie-blog for download links',
     long_description=readme(),
     long_description_content_type='text/markdown',
