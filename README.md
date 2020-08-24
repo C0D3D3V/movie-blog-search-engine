@@ -2,7 +2,7 @@
 
 Search on movie-blog for download links.
 
-The links are filtered by provider, by default only links from 'Zippyshare.com', 'anonfile.com' are displayed.
+The links are filtered by provider, by default only links from Zippyshare.com and anonfile.com are displayed.
 
 ## Installation
 
