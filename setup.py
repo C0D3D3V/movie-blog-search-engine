@@ -1,6 +1,5 @@
 from os import path
 from setuptools import setup
-from glob import glob
 
 
 def readme():
