@@ -106,6 +106,8 @@ def search(query='') -> [Movie_Blog_Entry]:
         page_rss_dict = page_dict.get('rss', {})
         page_items = page_rss_dict.get('channel', {}).get('item', [])
 
+        if not isinstance(page_items, list):
+            page_items = [page_items]
         # entries are mapped to there provider
         mapped_entries = {}
 
