@@ -39,9 +39,10 @@ r = requests.get('https://movie-blog.org')
 mb_domain = r.url
 
 
-speed_units = ['kb/s', 'kbps', 'mb/s', 'mbps', 'Kbp', 'VIDEO', '@', 'Video', 'Größe']
+speed_units = ['kb/s', 'kbps', 'mb/s', 'mbps', 'Kbp',
+               'VIDEO', '@', 'Video', 'Größe', 'Resolution']
 
-relevant_providers = ['Zippyshare.com', 'anonfile.com']
+relevant_providers = ['zippyshare.com', 'anonfile.com']
 
 
 class Movie_Blog_Entry:
@@ -121,11 +122,17 @@ def search(query='') -> [Movie_Blog_Entry]:
             d = pq(item_content)
             links = d('span[id^=mirror][style] a')
 
+            if links.length == 0:
+                links = d('a')
+
             mapped_links = {}
 
             for provider in relevant_providers:
                 for link in links:
-                    if link.text == provider:
+                    if link.text is None:
+                        continue
+                    parsed_provieder = link.text.strip().lower()
+                    if provider in parsed_provieder:
                         link_href = link.attrib.get('href', '')
                         if link_href != '':
                             if provider not in mapped_links:
@@ -137,7 +144,8 @@ def search(query='') -> [Movie_Blog_Entry]:
                 if provider not in mapped_entries:
                     mapped_entries[provider] = []
 
-                new_entry = Movie_Blog_Entry(item_title, item_link, speed_information, mapped_links[provider])
+                new_entry = Movie_Blog_Entry(
+                    item_title, item_link, speed_information, mapped_links[provider])
 
                 mapped_entries[provider].append(new_entry)
 

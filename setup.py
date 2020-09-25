@@ -10,7 +10,7 @@ def readme():
 
 setup(
     name='movie-blog-search-engine',
-    version='0.3',
+    version='0.4',
     description='Search on movie-blog for download links',
     long_description=readme(),
     long_description_content_type='text/markdown',
@@ -19,7 +19,7 @@ setup(
     license='GPL-3.0',
     scripts=['movie'],
     python_requires='>=3',
-    install_requires=['xmltodict', 'pyquery', 'requests',],
+    install_requires=['xmltodict', 'pyquery', 'requests', ],
     classifiers=[
         'Development Status :: 4 - Beta',
         'Intended Audience :: End Users/Desktop',
