@@ -42,7 +42,7 @@ mb_domain = r.url
 speed_units = ['kb/s', 'kbps', 'mb/s', 'mbps', 'Kbp',
                'VIDEO', '@', 'Video', 'Größe', 'Resolution']
 
-relevant_providers = ['zippyshare.com', 'anonfile.com']
+relevant_providers = ['zippyshare.com', 'anonfile.com', 'megaup.net']
 
 
 class Movie_Blog_Entry:
