@@ -7,10 +7,10 @@ Inspired form https://github.com/sydev/movie-blog-api
 from pyquery import PyQuery as pq
 import os
 import re
-import sys
 import json
 import html
 import atexit
+import argparse
 import requests
 import xmltodict
 import urllib.parse
@@ -35,12 +35,11 @@ stdHeader = {
     'Content-Type': 'application/x-www-form-urlencoded',
 }
 
-r = requests.get('https://movie-blog.org')
-mb_domain = r.url
+domain_response = requests.get('https://movie-blog.org')
+mb_domain = domain_response.url
 
 
-speed_units = ['kb/s', 'kbps', 'mb/s', 'mbps', 'Kbp',
-               'VIDEO', '@', 'Video', 'Größe', 'Resolution']
+speed_units = ['kb/s', 'kbps', 'mb/s', 'mbps', 'Kbp', 'VIDEO', '@', 'Video', 'Größe', 'Resolution']
 
 relevant_providers = ['zippyshare.com', 'anonfile.com', 'megaup.net']
 
@@ -94,13 +93,13 @@ def get_speed_information(html_content: str):
 
 
 def search(query='') -> [Movie_Blog_Entry]:
-    q = urllib.parse.quote(query)
-    url = '{}/?s={}&feed=rss2'.format(mb_domain, q)
+    query = urllib.parse.quote(query)
+    url = '{}/?s={}&feed=rss2'.format(mb_domain, query)
 
     try:
-        r = requests.get(url, headers=stdHeader)
+        response = requests.get(url, headers=stdHeader)
 
-        xml = r.text
+        xml = response.text
 
         page_dict = convert_xml_to_dict(xml)
 
@@ -144,8 +143,7 @@ def search(query='') -> [Movie_Blog_Entry]:
                 if provider not in mapped_entries:
                     mapped_entries[provider] = []
 
-                new_entry = Movie_Blog_Entry(
-                    item_title, item_link, speed_information, mapped_links[provider])
+                new_entry = Movie_Blog_Entry(item_title, item_link, speed_information, mapped_links[provider])
 
                 mapped_entries[provider].append(new_entry)
 
@@ -171,6 +169,29 @@ def print_entries(mapped_entries: {}):
 
 
 histfile = os.path.join(os.path.expanduser("~"), ".movie-blog-history")
+parser = argparse.ArgumentParser(
+    description=('Movie-Blog Search Engine helps to find the links on movie-block.org from different providers.')
+)
+
+parser.add_argument('query', type=str, nargs='*', help='For an instant search just enter your request as a parameter.')
+parser.add_argument(
+    '-p',
+    '--provider',
+    action='append',
+    type=str,
+    help="With this option you can add several individual providers to the search.",
+)
+parser.add_argument(
+    '-c',
+    '--clear-providers',
+    dest='clear_providers',
+    action='store_true',
+    help=(
+        'If you set this option the default provider list will be cleared before the specified providers'
+        + ' are added to the list.'
+    ),
+)
+args = parser.parse_args()
 
 try:
     if readline_loaded:
@@ -182,11 +203,21 @@ except FileNotFoundError:
 if readline_loaded:
     atexit.register(readline.write_history_file, histfile)
 
-if len(sys.argv) > 1:
-    q = ' '.join(sys.argv[1:])
-    print_entries(search(q))
+if args.clear_providers is True:
+    relevant_providers = []
+
+if args.provider is not None:
+    new_providers = []
+    for provider in args.provider:
+        new_providers.append(provider.strip().lower())
+    relevant_providers += new_providers
+
+if args.query is not None and len(args.query) > 0:
+    arg_query = ' '.join(args.query)
+    print_entries(search(arg_query))
     if readline_loaded:
-        readline.add_history(q)
+        readline.add_history(arg_query)
+
 
 try:
     while True:

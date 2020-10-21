@@ -2,7 +2,7 @@
 
 Search on movie-blog for download links.
 
-The links are filtered by provider, by default only links from Zippyshare.com and anonfile.com are displayed.
+The links are filtered by provider, by default only links from Zippyshare.com, megaup.net and anonfile.com are displayed.
 
 ## Installation
 
@@ -14,6 +14,22 @@ To get all links for a movie, execute the following command in a terminal:
 
     movie Name of the film
 
+```
+usage: movie [-h] [-p PROVIDER] [-c] [query [query ...]]
+
+Movie-Blog Search Engine helps to find the links on movie-block.org from different providers.
+
+positional arguments:
+  query                 For an instant search just enter your request as a parameter.
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -p PROVIDER, --provider PROVIDER
+                        With this option you can add several individual providers to the search.
+  -c, --clear-providers
+                        If you set this option the default provider list will be cleared before the specified
+                        providers are added to the list.
+```
 
 After a search a new search can be started directly.  Or the program can be closed with [Ctrl+C].
 
